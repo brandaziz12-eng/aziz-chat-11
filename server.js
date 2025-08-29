@@ -6,6 +6,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// الصفحة الرئيسية
+app.get("/", (req, res) => {
+  res.send("🚀 الخادم يعمل بنجاح! استخدم /chat لإرسال الرسائل.");
+});
+
 // نقطة استقبال الرسائل
 app.post("/chat", async (req, res) => {
   try {
@@ -25,10 +30,16 @@ app.post("/chat", async (req, res) => {
     });
 
     const data = await response.json();
-    res.json({ reply: data.choices[0].message.content });
+
+    if (data.choices && data.choices.length > 0) {
+      res.json({ reply: data.choices[0].message.content });
+    } else {
+      res.json({ reply: "❌ لم يتم استلام رد من OpenAI" });
+    }
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ reply: "حدث خطأ في الخادم" });
+    res.status(500).json({ reply: "⚠️ حدث خطأ في الخادم" });
   }
 });
 
